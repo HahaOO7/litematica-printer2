@@ -10,12 +10,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
-//#if MC>=12002
-//$$ import net.minecraft.client.network.ClientCommonNetworkHandler;
-//$$ import net.minecraft.client.network.ClientConnectionState;
-//$$ import net.minecraft.network.ClientConnection;
-//#endif
-import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
+import net.minecraft.client.network.ClientCommonNetworkHandler;
+import net.minecraft.client.network.ClientConnectionState;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import org.spongepowered.asm.mixin.Final;
@@ -25,20 +22,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-//#if MC<=12001
-@Mixin(ClientPlayNetworkHandler.class)
-public class ClientPlayNetworkHandlerMixin {
 
-	@Shadow
-	@Final
-	private MinecraftClient client;
-//#else
-//$$@Mixin(value = ClientPlayNetworkHandler.class, remap = false)
-//$$public abstract class ClientPlayNetworkHandlerMixin extends ClientCommonNetworkHandler{
-//$$protected ClientPlayNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
-//$$	super(client, connection, connectionState);
-//$$	}
-//#endif
+@Mixin(value = ClientPlayNetworkHandler.class, remap = false)
+public abstract class ClientPlayNetworkHandlerMixin extends ClientCommonNetworkHandler{
+protected ClientPlayNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
+	super(client, connection, connectionState);
+	}
 	private static boolean isSynced = false;
 
 	/*
@@ -70,11 +59,11 @@ public class ClientPlayNetworkHandlerMixin {
 					if (packet.getSlot() == -1) {
 						//okay wtf? server is actually trying to disconnect client.
 						if (packet.getSyncId() == -1 && !(this.client.currentScreen instanceof CreativeInventoryScreen)) {
-							this.client.execute(() -> player.currentScreenHandler.setCursorStack(packet.getItemStack()));
+							this.client.execute(() -> player.currentScreenHandler.setCursorStack(packet.getStack()));
 						}
 						return;
 					}
-					this.client.execute(() -> player.currentScreenHandler.setStackInSlot(packet.getSlot(), packet.getRevision(), packet.getItemStack()));
+					this.client.execute(() -> player.currentScreenHandler.setStackInSlot(packet.getSlot(), packet.getRevision(), packet.getStack()));
 				}
 				//MessageHolder.sendMessageUnchecked("Cancelled ");
 			}
@@ -82,12 +71,6 @@ public class ClientPlayNetworkHandlerMixin {
 		}
 		cancelIfRequired(ci);
 	}
-	//#if MC<=12001
-	@Inject(method = "onDisconnect", at = @At("HEAD"))
-	private void handleDisconnect(DisconnectS2CPacket packet, CallbackInfo ci) {
-		isSynced = false;
-	}
-	//#endif
 
 	@Inject(method = "onUpdateSelectedSlot", at = @At("HEAD"), cancellable = true, require = 0)
 	private void onUpdateSelectSlots(UpdateSelectedSlotS2CPacket packet, CallbackInfo ci) {

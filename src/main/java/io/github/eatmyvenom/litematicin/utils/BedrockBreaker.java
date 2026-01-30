@@ -51,11 +51,7 @@ public class BedrockBreaker {
 	}
 
 	public static boolean isReplaceable(BlockState state) {
-		//#if MC>=12000
-		//$$ return state.isReplaceable();
-		//#else
-		return state.getMaterial().isReplaceable();
-		//#endif
+		return state.isReplaceable();
 	}
 
 	private static boolean shouldExtend(World world, BlockPos pos, Direction pistonFace) {

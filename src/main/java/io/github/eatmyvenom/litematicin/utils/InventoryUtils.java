@@ -18,6 +18,9 @@ import net.minecraft.client.network.ClientPlayerEntity;
 //$$ import net.minecraft.component.DataComponentTypes;
 //$$ import net.minecraft.component.type.ContainerComponent;
 //#endif
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
@@ -25,6 +28,7 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -125,18 +129,10 @@ public class InventoryUtils {
 						//$$ }
 					//$$ }
 					//#else
-					NbtCompound compound = stack.getSubNbt("BlockEntityTag");
-					if (compound == null) {
-						continue;
-					}
-					DefaultedList<ItemStack> returnStacks = DefaultedList.ofSize(invSize, ItemStack.EMPTY);
-					if (compound.contains("Items")) {
-						Inventories.readNbt(compound, returnStacks);
-					}
-					for (ItemStack returnStack : returnStacks) {
-						Item returnItem = returnStack.getItem();
-						if (returnItem != null) {
-							ITEMS.add(returnItem);
+					ContainerComponent container = stack.get(DataComponentTypes.CONTAINER);
+					if(container != null){
+						for (ItemStack itemStack : container.iterateNonEmpty()) {
+							ITEMS.add(itemStack.getItem());
 						}
 					}
 					//#endif
@@ -267,7 +263,7 @@ public class InventoryUtils {
 		//#if MC >= 12006
 		//$$ boolean nbtCondition = LitematicaMixinMod.PRINTER_IGNORE_NBT.getBooleanValue() || ItemStack.areItemsAndComponentsEqual(a, b);
 		//#else
-		boolean nbtCondition = PRINTER_IGNORE_NBT.getBooleanValue() || ItemStack.areNbtEqual(a, b);
+		boolean nbtCondition = PRINTER_IGNORE_NBT.getBooleanValue() || ItemStack.areItemsAndComponentsEqual(a, b);
 		//#endif
 		return isItemEqual && nbtCondition;
 	}
@@ -282,7 +278,7 @@ public class InventoryUtils {
 		//#if MC >= 12006
 		//$$ boolean nbtCondition = LitematicaMixinMod.PRINTER_IGNORE_NBT.getBooleanValue() || ItemStack.areItemsAndComponentsEqual(a, b);
 		//#else
-		boolean nbtCondition = PRINTER_IGNORE_NBT.getBooleanValue() || ItemStack.areNbtEqual(a, b);
+		boolean nbtCondition = PRINTER_IGNORE_NBT.getBooleanValue() || ItemStack.areItemsAndComponentsEqual(a, b);
 		//#endif
 		return ItemStack.areItemsEqual(a, b) && nbtCondition;
 	}
@@ -315,11 +311,10 @@ public class InventoryUtils {
 		//#endif
 			return false; // safety
 		}
-		//#if MC >= 12006
-		//$$ return ItemStack.areItemsEqual(a, b) || a.getMaxCount() == b.getMaxCount() && a.contains(DataComponentTypes.CUSTOM_NAME) && b.contains(DataComponentTypes.CUSTOM_NAME);
-		//#else
-		return ItemStack.areItemsEqual(a, b) || a.getMaxCount() == b.getMaxCount() && a.hasCustomName() && b.hasCustomName();
-		//#endif
+		return ItemStack.areItemsEqual(a, b)
+				|| a.getMaxCount() == b.getMaxCount()
+				&& a.contains(DataComponentTypes.CUSTOM_NAME)
+				&& b.contains(DataComponentTypes.CUSTOM_NAME);
 	}
 
 	public static boolean requiresSwap(ClientPlayerEntity player, ItemStack stack) {
@@ -471,7 +466,7 @@ public class InventoryUtils {
 			//#if MC >= 12006
 			//$$ boolean areNbtsEqual = ItemStack.areItemsAndComponentsEqual(inv.getStack(i), stack);
 			//#else
-			boolean areNbtsEqual = ItemStack.areNbtEqual(inv.getStack(i), stack);
+			boolean areNbtsEqual = ItemStack.areItemsAndComponentsEqual(inv.getStack(i), stack);
 			//#endif
 			boolean areItemsEqual = ItemStack.areItemsEqual(inv.getStack(i), stack);
 			MessageHolder.sendUniqueDebugMessage("Slot " + i + ", " + inv.getStack(i).getItem() + " : " + areItemsEqual + " : " + areNbtsEqual);

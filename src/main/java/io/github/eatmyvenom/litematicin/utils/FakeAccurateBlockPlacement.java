@@ -7,8 +7,9 @@ import fi.dy.masa.litematica.materials.MaterialCache;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import io.github.eatmyvenom.litematicin.LitematicaMixinMod;
 import net.minecraft.block.*;
+import net.minecraft.block.enums.BlockFace;
 import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.block.enums.WallMountLocation;
+import net.minecraft.block.enums.BlockFace;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -233,8 +234,8 @@ public class FakeAccurateBlockPlacement {
 		}
 		if (blockState.getBlock() instanceof WallMountedBlock) {
 			//so we have 2 properties, looking at down / up as first direction, horizontals as second direction.
-			WallMountLocation location = blockState.get(WallMountedBlock.FACE);
-			if (location == WallMountLocation.WALL) {
+			BlockFace location = blockState.get(WallMountedBlock.FACE);
+			if (location == BlockFace.WALL) {
 				return true;
 			}
 			Direction facingSecond = blockState.get(WallMountedBlock.FACING);
@@ -246,16 +247,16 @@ public class FakeAccurateBlockPlacement {
 
 	private static boolean requestGrindStone(BlockState state, BlockPos blockPos) {
 		Direction facing = state.get(WallMountedBlock.FACING);
-		WallMountLocation location = state.get(WallMountedBlock.FACE);
+		BlockFace location = state.get(WallMountedBlock.FACE);
 		float fy = 0;
 		float fp = 0;
 		Direction lookRefdir;
-		if (location == WallMountLocation.CEILING) {
+		if (location == BlockFace.CEILING) {
 			//primary should be UP
 			//secondary should be same as facing
 			fp = -90;
 			lookRefdir = facing;
-		} else if (location == WallMountLocation.FLOOR) {
+		} else if (location == BlockFace.FLOOR) {
 			fp = 90;
 			lookRefdir = facing;
 		} else {
@@ -397,10 +398,10 @@ public class FakeAccurateBlockPlacement {
 			direction1 = reversed ? facing.getOpposite() : facing;
 		} else if (order == 2) {
 			facing = blockState.get(WallMountedBlock.FACING);
-			direction1 = blockState.contains(WallMountedBlock.FACE) && blockState.get(WallMountedBlock.FACE) == WallMountLocation.WALL ? facing.getOpposite() : facing;
-			if (blockState.get(WallMountedBlock.FACE) == WallMountLocation.CEILING) {
+			direction1 = blockState.contains(WallMountedBlock.FACE) && blockState.get(WallMountedBlock.FACE) == BlockFace.WALL ? facing.getOpposite() : facing;
+			if (blockState.get(WallMountedBlock.FACE) == BlockFace.CEILING) {
 				fp = -90;
-			} else if (blockState.get(WallMountedBlock.FACE) == WallMountLocation.FLOOR) {
+			} else if (blockState.get(WallMountedBlock.FACE) == BlockFace.FLOOR) {
 				fp = 90;
 			} else {
 				fp = 12;
@@ -543,7 +544,7 @@ public class FakeAccurateBlockPlacement {
 		//#if MC>=12000
 		//$$ if (!minecraftClient.world.getBlockState(pos).isReplaceable()) {
 		//#else
-		if (!minecraftClient.world.getBlockState(pos).getMaterial().isReplaceable()) {
+		if (!minecraftClient.world.getBlockState(pos).isReplaceable()) {
 		//#endif
 			MessageHolder.sendDebugMessage("Client block position was not replaceable at " + pos.toShortString());
 			return true;
@@ -557,9 +558,9 @@ public class FakeAccurateBlockPlacement {
 			appliedHitVec = Vec3d.of(pos);
 		} else if (blockState.getBlock() instanceof GrindstoneBlock) {
 			appliedHitVec = Vec3d.ofCenter(pos);
-			if (blockState.get(GrindstoneBlock.FACE) == WallMountLocation.CEILING) {
+			if (blockState.get(GrindstoneBlock.FACE) == BlockFace.CEILING) {
 				side = Direction.DOWN;
-			} else if (blockState.get(GrindstoneBlock.FACE) == WallMountLocation.FLOOR) {
+			} else if (blockState.get(GrindstoneBlock.FACE) == BlockFace.FLOOR) {
 				side = Direction.UP;
 			}
 		} else if (blockState.getBlock() instanceof TorchBlock) {
