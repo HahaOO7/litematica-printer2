@@ -809,8 +809,9 @@ public class Printer {
 									} //can place vanilla
 								}
 								// Blocks are not equal, but can be converted. example: dirt -> dirt path
-								if (stateClient.isOf(Blocks.DIRT)) {
-									if (stateSchematic.isOf(Blocks.DIRT_PATH) && PRINTER_PRINT_DIRT_VARIANTS.getBooleanValue() && io.github.eatmyvenom.litematicin.utils.InventoryUtils.canSwap(mc.player, item -> item.getItem() instanceof ShovelItem)) {
+								if (stateClient.isOf(Blocks.DIRT) || stateClient.isOf(Blocks.GRASS_BLOCK)) {
+									if (stateSchematic.isOf(Blocks.DIRT_PATH) && PRINTER_PRINT_DIRT_VARIANTS.getBooleanValue()
+											&& io.github.eatmyvenom.litematicin.utils.InventoryUtils.canSwap(mc.player, item -> item.getItem() instanceof ShovelItem)) {
 										if (doSchematicWorldPickBlock(mc, stack -> stack.getItem() instanceof ShovelItem)){
 											Vec3d hitPos = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 											BlockHitResult hitResult = new BlockHitResult(hitPos, Direction.UP, pos, false);
@@ -818,7 +819,8 @@ public class Printer {
 										}
 									}
 									// farmland
-									else if (stateSchematic.isOf(Blocks.FARMLAND) && PRINTER_PRINT_DIRT_VARIANTS.getBooleanValue() && io.github.eatmyvenom.litematicin.utils.InventoryUtils.canSwap(mc.player, item -> item.getItem() instanceof HoeItem)) {
+									else if (stateSchematic.isOf(Blocks.FARMLAND) && PRINTER_PRINT_DIRT_VARIANTS.getBooleanValue()
+											&& io.github.eatmyvenom.litematicin.utils.InventoryUtils.canSwap(mc.player, item -> item.getItem() instanceof HoeItem)) {
 										if (doSchematicWorldPickBlock(mc, stack -> stack.getItem() instanceof HoeItem)){
 											Vec3d hitPos = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 											BlockHitResult hitResult = new BlockHitResult(hitPos, Direction.UP, pos, false);
